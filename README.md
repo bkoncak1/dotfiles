@@ -3,37 +3,62 @@
 Personal configuration files for macOS, Fedora, and development environment.
 
 ## Quick Start
-```bash
-git clone git@github.com:bekir/dotfiles.git ~/dotfiles
-cd ~/dotfiles
-./install.sh
-```
-
-## What's Included
-
-- Shell configs (bash/zsh)
-- Git configuration
-- SSH config for work/home networks
-- Custom scripts for GIS/FME workflows
-- PostgreSQL client settings
-- Python development tools
-
-## OS-Specific Setup
 
 ### macOS
 ```bash
-brew bundle --file=macos/Brewfile
+git clone git@github.com:bkoncak1/dotfiles.git ~/Developer/git/dotfiles
+cd ~/Developer/git/dotfiles
+./macos/setup.sh
+./install.sh
 ```
 
 ### Fedora
 ```bash
-sudo dnf install $(cat fedora/packages.txt)
+git clone git@github.com:bkoncak1/dotfiles.git ~/Developer/git/dotfiles
+cd ~/Developer/git/dotfiles
+./install.sh
 ```
 
-## Organization
+**📖 For detailed setup instructions, see [SETUP.md](SETUP.md)**
 
-- `bin/` - Custom scripts (added to PATH)
-- `shell/` - Shell configurations
-- `git/` - Git settings
-- `ssh/` - SSH client config
-- OS-specific folders for package lists
+---
+
+## What's Included
+
+- **Shell**: Zsh with Oh My Zsh and Powerlevel10k theme
+- **Git**: Global configuration and ignore patterns
+- **SSH**: Organized SSH client configurations
+- **Scripts**: Custom automation tools for GIS/FME workflows
+- **Development**: Python, PostgreSQL, and other dev tool configs
+- **Packages**: Brewfile for macOS, package lists for Fedora
+
+## Structure
+
+```
+dotfiles/
+├── bin/          # Custom scripts (in PATH)
+├── git/          # Git configuration
+├── shell/        # Zsh configs and theme
+├── ssh/          # SSH client config
+├── macos/        # macOS-specific (Brewfile, setup)
+└── fedora/       # Fedora-specific packages
+```
+
+## Updating
+
+```bash
+cd ~/Developer/git/dotfiles
+git pull
+./install.sh  # Re-run if needed
+```
+
+To update your Brewfile after installing new packages:
+```bash
+cd ~/Developer/git/dotfiles/macos
+brew bundle dump --force
+git add Brewfile && git commit -m "Update Brewfile" && git push
+```
+
+---
+
+**Need help?** Check [SETUP.md](SETUP.md) for detailed instructions and troubleshooting.
