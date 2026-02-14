@@ -1,0 +1,108 @@
+# SSH config for Bekir Koncak
+
+# ---------------------------------
+# --- local network @ bkirBook ----
+# ---------------------------------
+# ubuntu with SQL Server  ---------
+# Host sql
+#   HostName 10.211.55.17
+#   Port 22
+#   IdentityFile ~/.ssh/adminbk
+#   User parallels
+# # ---------------------------------
+# # ---------------------------------
+# # debian  -------------------------
+# Host debian
+#   HostName 10.211.55.20
+#   Port 22
+#   IdentityFile ~/.ssh/adminbk
+#   User adminbk
+# ---------------------------------
+# ---------------------------------
+# debian-airflow  -----------------
+# Host debian-airflow
+#   HostName 10.211.55.20
+#   Port 22
+#   IdentityFile ~/.ssh/adminbk
+#   User adminbk
+# ---------------------------------
+# ---------------------------------
+# debian-mapserver ----------------
+# Host debian-mapserver
+#   HostName 10.211.55.22
+#   Port 22
+#   IdentityFile ~/.ssh/adminbk
+#   User adminbk
+# ---------------------------------
+
+# ---------------------------------
+# --- Home network @ Amersfoort ---
+# ---------------------------------
+# DIY NAS | box -------------------
+Host box
+  HostName box.skynet.bkir.nl
+  Port 2202
+  IdentityFile ~/.ssh/adminbk
+  User adminbk
+# ---------------------------------
+# ---------------------------------
+# DIY NAS | box -------------------
+# Host box-ext
+#   HostName home.bkir.nl
+#   Port 2202
+#   IdentityFile ~/.ssh/adminbk
+#   User adminbk
+# ---------------------------------
+# PC | andromeda ------------------
+Host andromeda
+  HostName andromeda.skynet.bkir.nl
+  Port 22
+  User adminbk
+  IdentityFile ~/.ssh/adminbk
+# ---------------------------------
+# --- Home network @ Isparta ------
+# ---------------------------------
+# pi001 - Raspberry PI4B ----------
+Host pi001
+  HostName 192.168.2.51
+  Port 22
+  User bkir
+  IdentityFile ~/.ssh/adminbk
+# ---------------------------------
+# pi001 - Raspberry PI4B ----------
+# Host pi001-ext
+#   HostName 217.121.13.72
+#   Port 22
+#   User bkir
+#   IdentityFile ~/.ssh/adminbk
+# ---------------------------------
+# --- Git connections -------------
+# ---------------------------------
+# Azure DevOps | stedin -----------
+# Host git-stedin
+#   HostName ssh.dev.azure.com
+#   Port 22
+#   User git
+#   IdentityFile ~/.ssh/bekirAtStedin
+#   IdentitiesOnly yes
+# ---------------------------------
+# Azure DevOps | waternet ---------
+Host waternet
+    HostName ssh.dev.azure.com
+    User git
+    IdentityFile ~/.ssh/bekirAtWaternet
+    IdentitiesOnly yes
+# Azure DevOps | strukton ---------
+Host git-strukton
+    HostName ssh.dev.azure.com
+    Port 22
+    User git
+    IdentityFile ~/.ssh/bekirAtStrukton
+    IdentitiesOnly yes
+# GitHub | bkoncak1 ---------------
+Host github.com
+    HostName github.com
+    Port 22
+    User git
+    IdentitiesOnly yes
+    IdentityFile ~/.ssh/bkoncak1AtGithub_v2

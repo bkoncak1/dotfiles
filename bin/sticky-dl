@@ -1,0 +1,22 @@
+#!/bin/bash
+# Run movedl.py script in sab scripts directory
+
+cd $HOME/Developer/git/sticky-downloader || { echo "❌ Could not change to ~/Developer/git/sticky-downloader"; exit 1; }
+
+# Activate uv virtual environment
+if [ -f ".venv/bin/activate" ]; then
+    source .venv/bin/activate
+elif [ -f "venv/bin/activate" ]; then
+    source venv/bin/activate
+fi
+
+# Run the script with uv
+uv run main.py
+
+# Capture exit code
+exit_code=$?
+
+# Return to previous directory
+cd - > /dev/null
+
+exit $exit_code

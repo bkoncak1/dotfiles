@@ -1,0 +1,79 @@
+#!/bin/bash
+
+# Check if jq is installed
+if ! command -v jq &> /dev/null; then
+    echo "Error: jq is not installed. Install it with: brew install jq"
+    exit 1
+fi
+
+# Fetch IP information
+echo "Fetching IP information..."
+echo ""
+
+response=$(curl -s ifconfig.co/json)
+
+if [ $? -ne 0 ] || [ -z "$response" ]; then
+    echo "Error: Could not fetch IP information"
+    exit 1
+fi
+
+# Parse JSON with jq
+ip=$(echo "$response" | jq -r '.ip')
+country=$(echo "$response" | jq -r '.country')
+country_iso=$(echo "$response" | jq -r '.country_iso')
+region=$(echo "$response" | jq -r '.region_name')
+city=$(echo "$response" | jq -r '.city')
+zip=$(echo "$response" | jq -r '.zip_code')
+latitude=$(echo "$response" | jq -r '.latitude')
+longitude=$(echo "$response" | jq -r '.longitude')
+timezone=$(echo "$response" | jq -r '.time_zone')
+asn=$(echo "$response" | jq -r '.asn')
+asn_org=$(echo "$response" | jq -r '.asn_org')
+hostname=$(echo "$response" | jq -r '.hostname')
+
+# Get local IP
+local_ip=$(ipconfig getifaddr en0 2>/dev/null || ipconfig getifaddr en1 2>/dev/null || echo "N/A")
+
+# Convert country code to flag emoji
+flag=""
+case "$country_iso" in
+    "TR") flag="🇹🇷" ;;
+    "NL") flag="🇳🇱" ;;
+    "US") flag="🇺🇸" ;;
+    "GB") flag="🇬🇧" ;;
+    "DE") flag="🇩🇪" ;;
+    "FR") flag="🇫🇷" ;;
+    "ES") flag="🇪🇸" ;;
+    "IT") flag="🇮🇹" ;;
+    "BE") flag="🇧🇪" ;;
+    "PT") flag="🇵🇹" ;;
+    "GR") flag="🇬🇷" ;;
+    "JP") flag="🇯🇵" ;;
+    "CN") flag="🇨🇳" ;;
+    "RU") flag="🇷🇺" ;;
+    "AU") flag="🇦🇺" ;;
+    "CA") flag="🇨🇦" ;;
+    *) flag="🌍" ;;
+esac
+
+# Display information nicely
+echo "╔════════════════════════════════════════════════════════════════╗"
+echo "║                    IP INFORMATION                              ║"
+echo "╠════════════════════════════════════════════════════════════════╣"
+printf "║ %-20s : %-40s ║\n" "Public IP" "$ip"
+printf "║ %-20s : %-40s ║\n" "Local IP" "$local_ip"
+printf "║ %-20s : %-40s ║\n" "Hostname" "$hostname"
+echo "╠════════════════════════════════════════════════════════════════╣"
+printf "║ %-20s : %-40s ║\n" "Country" "$flag $country ($country_iso)"
+printf "║ %-20s : %-40s ║\n" "Region" "$region"
+printf "║ %-20s : %-40s ║\n" "City" "$city"
+printf "║ %-20s : %-40s ║\n" "Zip Code" "$zip"
+printf "║ %-20s : %-40s ║\n" "Timezone" "$timezone"
+echo "╠════════════════════════════════════════════════════════════════╣"
+printf "║ %-20s : %-40s ║\n" "Coordinates" "$latitude, $longitude"
+printf "║ %-20s : %-40s ║\n" "ASN" "$asn"
+printf "║ %-20s : %-40s ║\n" "Provider" "$asn_org"
+echo "╚════════════════════════════════════════════════════════════════╝"
+
+# Copy public IP to clipboard
+echo "$ip" | pbcopy

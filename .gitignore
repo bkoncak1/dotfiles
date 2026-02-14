@@ -1,0 +1,17 @@
+# Vim
+*.swp
+*.swo
+*~
+
+# macOS
+.DS_Store
+
+# Secrets
+ssh/id_*
+ssh/*.pem
+ssh/known_hosts
+*.secret
+*.local
+
+# Backup files
+*.bak
