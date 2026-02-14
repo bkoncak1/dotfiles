@@ -38,14 +38,39 @@ if [ -f "$DOTFILES/postgres/.psqlrc" ]; then
     echo "✓ PostgreSQL config"
 fi
 
-# Bin scripts to ~/Developer/bin (your preferred location)
+# Bin scripts to ~/Developer/bin
 for script in "$DOTFILES/bin"/*; do
     if [ -f "$script" ]; then
         ln -sf "$script" ~/Developer/bin/$(basename "$script")
-        chmod +x "$script"
     fi
 done
 echo "✓ Bin scripts"
+
+# macOS specific - Homebrew packages
+if [[ "$OSTYPE" == "darwin"* ]] && [ -f "$DOTFILES/macos/Brewfile" ]; then
+    echo ""
+    read -p "Install Homebrew packages from Brewfile? (y/n) " -n 1 -r
+    echo
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+        brew bundle --file="$DOTFILES/macos/Brewfile"
+        echo "✓ Homebrew packages installed"
+    else
+        echo "⊘ Skipped Homebrew packages"
+    fi
+fi
+
+# Fedora specific - DNF packages
+if [ -f /etc/fedora-release ] && [ -f "$DOTFILES/fedora/packages.txt" ]; then
+    echo ""
+    read -p "Install Fedora packages from packages.txt? (y/n) " -n 1 -r
+    echo
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+        sudo dnf install -y $(cat "$DOTFILES/fedora/packages.txt")
+        echo "✓ Fedora packages installed"
+    else
+        echo "⊘ Skipped Fedora packages"
+    fi
+fi
 
 echo ""
 echo "Done! Restart your terminal or run: source ~/.zshrc"
