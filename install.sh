@@ -26,16 +26,15 @@ if [ -f "$DOTFILES/ssh/config" ]; then
     echo "✓ SSH config"
 fi
 
-# Vim/Neovim
-if [ -f "$DOTFILES/vim/.vimrc" ]; then
-    ln -sf "$DOTFILES/vim/.vimrc" ~/.vimrc
-    echo "✓ Vim config"
-fi
-
-# PostgreSQL
-if [ -f "$DOTFILES/postgres/.psqlrc" ]; then
-    ln -sf "$DOTFILES/postgres/.psqlrc" ~/.psqlrc
-    echo "✓ PostgreSQL config"
+# macOS prerequisites
+if [[ "$OSTYPE" == "darwin"* ]] && [ -f "$DOTFILES/macos/setup.sh" ]; then
+    echo ""
+    read -p "Run macOS setup (Homebrew, Oh My Zsh, Powerlevel10k)? (y/n) " -n 1 -r
+    echo
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+        bash "$DOTFILES/macos/setup.sh"
+        echo "✓ macOS prerequisites installed"
+    fi
 fi
 
 # Bin scripts to ~/Developer/bin
