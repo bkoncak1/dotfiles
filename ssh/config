@@ -4,19 +4,26 @@
 # --- local network @ bkirBook ----
 # ---------------------------------
 # ubuntu with SQL Server  ---------
-# Host sql
-#   HostName 10.211.55.17
-#   Port 22
-#   IdentityFile ~/.ssh/adminbk
-#   User parallels
+Host sql
+  HostName 10.211.55.14
+  Port 22
+  IdentityFile ~/.ssh/adminbk
+  User adminbk
 # # ---------------------------------
 # # ---------------------------------
 # # debian  -------------------------
-# Host debian
-#   HostName 10.211.55.20
-#   Port 22
-#   IdentityFile ~/.ssh/adminbk
-#   User adminbk
+Host debian-mapserv
+  HostName 10.211.55.16
+  Port 22
+  IdentityFile ~/.ssh/adminbk
+  User adminbk
+# ---------------------------------
+# # debian psql  ------------------
+Host debian-psql
+  HostName 10.211.55.18
+  Port 22
+  IdentityFile ~/.ssh/adminbk
+  User adminbk
 # ---------------------------------
 # ---------------------------------
 # debian-airflow  -----------------
@@ -40,21 +47,28 @@
 # ---------------------------------
 # DIY NAS | box -------------------
 Host box
-  HostName box.skynet.bkir.nl
+  HostName box.perimeter.bkir.nl
+  Port 2202
+  IdentityFile ~/.ssh/adminbk
+  User adminbk
+# ---------------------------------
+# DIY NAS | box-2 -----------------
+Host box-2
+  HostName box-2.skynet.bkir.nl
   Port 2202
   IdentityFile ~/.ssh/adminbk
   User adminbk
 # ---------------------------------
 # ---------------------------------
 # DIY NAS | box -------------------
-# Host box-ext
-#   HostName home.bkir.nl
-#   Port 2202
-#   IdentityFile ~/.ssh/adminbk
-#   User adminbk
+Host box-ext
+  HostName 10.0.31.35
+  Port 2202
+  IdentityFile ~/.ssh/adminbk
+  User adminbk
 # ---------------------------------
 # PC | andromeda ------------------
-Host andromeda
+Host andromeda andromeda.skynet.bkir.nl a
   HostName andromeda.skynet.bkir.nl
   Port 22
   User adminbk
@@ -64,7 +78,7 @@ Host andromeda
 # ---------------------------------
 # pi001 - Raspberry PI4B ----------
 Host pi001
-  HostName 192.168.2.51
+  HostName 10.0.31.46
   Port 22
   User bkir
   IdentityFile ~/.ssh/adminbk

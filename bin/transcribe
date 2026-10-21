@@ -1,11 +1,13 @@
 #!/bin/bash
 
+LANGUAGES="tr en nl fr de es it pt ja zh auto"
+
 # Check if filename argument is provided
 if [ $# -eq 0 ]; then
-    echo "Usage: transcribe <audio-file> [language]"
+    echo "Usage: transcribe <audio-file>... [language]"
     echo "Supported formats: .m4a, .mp3, .wav, .mp4, .mkv, .wmv, .avi, .flac, etc."
     echo ""
-    echo "Language codes (optional):"
+    echo "Language codes (optional, as last argument):"
     echo "  tr - Turkish"
     echo "  en - English (default)"
     echo "  nl - Dutch"
@@ -18,63 +20,82 @@ if [ $# -eq 0 ]; then
     echo "  zh - Chinese"
     echo "  auto - Auto-detect"
     echo ""
-    echo "Example: transcribe recording.m4a tr"
+    echo "Examples:"
+    echo "  transcribe recording.m4a tr"
+    echo "  transcribe *.m4a"
+    echo "  transcribe *.m4a tr"
     exit 1
 fi
 
-INPUT_FILE="$1"
-LANGUAGE="${2:-en}"  # Default to English if not specified
+# Check if the last argument is a language code
+LAST_ARG="${!#}"
+LANGUAGE="en"
+FILES=("$@")
 
-# Check if file exists
-if [ ! -f "$INPUT_FILE" ]; then
-    echo "Error: File not found: $INPUT_FILE"
-    exit 1
+if echo "$LANGUAGES" | grep -qw "$LAST_ARG" && [ $# -gt 1 ]; then
+    LANGUAGE="$LAST_ARG"
+    FILES=("${@:1:$#-1}")
 fi
 
-BASENAME=$(basename "$INPUT_FILE" | sed 's/\.[^.]*$//')
-DIR=$(dirname "$INPUT_FILE")
-WAV_FILE="${DIR}/${BASENAME}.wav"
+FAILED=0
 
-# Convert to WAV format with audio enhancement
-echo "Converting and enhancing audio..."
-ffmpeg -i "$INPUT_FILE" \
-    -af "highpass=f=100,lowpass=f=8000,afftdn=nf=-20,speechnorm=e=12.5:r=0.0001:l=1,acompressor=threshold=-20dB:ratio=4:attack=5:release=50" \
-    -ar 16000 -ac 1 -c:a pcm_s16le "$WAV_FILE" -y -loglevel error
-
-if [ $? -ne 0 ]; then
-    echo "Error: FFmpeg conversion failed"
-    exit 1
-fi
-
-# Run whisper transcription with anti-hallucination settings
-echo "Transcribing in $LANGUAGE..."
-~/Developer/tools/whisper.cpp/build/bin/whisper-cli \
-    -m ~/Developer/tools/whisper.cpp/models/ggml-large-v3.bin \
-    -l "$LANGUAGE" \
-    -t 12 \
-    -p 1 \
-    -et 2.4 \
-    -mc 0 \
-    -sns \
-    -otxt \
-    -ojf \
-    -f "$WAV_FILE"
-
-if [ $? -eq 0 ]; then
-    # Rename output files to remove .wav extension
-    if [ -f "${WAV_FILE}.txt" ]; then
-        mv "${WAV_FILE}.txt" "${DIR}/${BASENAME}.txt"
+for INPUT_FILE in "${FILES[@]}"; do
+    # Check if file exists
+    if [ ! -f "$INPUT_FILE" ]; then
+        echo "Error: File not found: $INPUT_FILE"
+        FAILED=1
+        continue
     fi
-    if [ -f "${WAV_FILE}.json" ]; then
-        mv "${WAV_FILE}.json" "${DIR}/${BASENAME}.json"
+
+    BASENAME=$(basename "$INPUT_FILE" | sed 's/\.[^.]*$//')
+    DIR=$(dirname "$INPUT_FILE")
+    WAV_FILE="${DIR}/${BASENAME}.wav"
+
+    # Convert to WAV format with light cleanup
+    # Convert to WAV format (source is already 16k mono from Teams)
+    echo "[$BASENAME] Converting audio..."
+    ffmpeg -i "$INPUT_FILE" \
+        -ar 16000 -ac 1 -c:a pcm_s16le "$WAV_FILE" -y -loglevel error
+
+    if [ $? -ne 0 ]; then
+        echo "[$BASENAME] Error: FFmpeg conversion failed"
+        FAILED=1
+        continue
     fi
-    
-    # Remove temporary WAV file
-    rm "$WAV_FILE"
-    
-    echo "Done! Output files: ${BASENAME}.txt and ${BASENAME}.json"
-else
-    echo "Error: Transcription failed"
-    rm -f "$WAV_FILE"  # Clean up WAV file even on failure
-    exit 1
-fi
+
+    # Run whisper transcription with anti-hallucination settings
+    ~/Developer/tools/whisper.cpp/build/bin/whisper-cli \
+        -m ~/Developer/tools/whisper.cpp/models/ggml-large-v3.bin \
+        -l "$LANGUAGE" \
+        -t 12 \
+        --vad \
+        -vm ~/Developer/tools/whisper.cpp/models/ggml-silero-v5.1.2.bin \
+        --vad-threshold 0.5 \
+        --vad-min-silence-duration-ms 500 \
+        -et 2.4 \
+        -mc 0 \
+        -sns \
+        -otxt -ojf -ovtt -osrt \
+        -f "$WAV_FILE"
+
+    if [ $? -eq 0 ]; then
+        # Rename output files to remove .wav extension
+        if [ -f "${WAV_FILE}.txt" ]; then
+            mv "${WAV_FILE}.txt" "${DIR}/${BASENAME}.txt"
+        fi
+        if [ -f "${WAV_FILE}.json" ]; then
+            mv "${WAV_FILE}.json" "${DIR}/${BASENAME}.json"
+        fi
+
+        # Remove temporary WAV file
+        rm "$WAV_FILE"
+
+        echo "[$BASENAME] Done! Output: ${BASENAME}.txt and ${BASENAME}.json"
+    else
+        echo "[$BASENAME] Error: Transcription failed"
+        rm -f "$WAV_FILE"
+        FAILED=1
+    fi
+done
+
+exit $FAILED
