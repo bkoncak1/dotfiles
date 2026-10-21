@@ -15,3 +15,7 @@ ssh/known_hosts
 
 # Backup files
 *.bak
+
+# IDE
+.code
+.idea
